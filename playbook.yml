@@ -1,0 +1,30 @@
+- hosts: server1
+  vars:
+  - image: rahadiansetya/httpd-custom:icon
+  tasks:
+    - name: install python docker for ubuntu
+      apt: 
+        name:
+          - python3
+          - python3-docker
+        state: present
+      when:
+      - ansible_distribution == "Ubuntu"
+    - name: install python docker for centos
+      yum:
+        name: python-docker
+        state: present
+      when:
+      - ansible_distribution == "CentOS"
+    - name: pull images
+      docker_images:
+        name: "{{ image }}"
+        state: present
+    - name: create containers
+      docker_containers:
+        name: docker-ansible
+        state: started
+        published_ports:
+          - 8090:80
+        image: {{ image }}
+        recreate: yes
